@@ -2,12 +2,12 @@ displayName: Traefik Disolver - Get Client Real IP
 type: middleware
 iconPath: .assets/icon.png
 
-import: github.com/kyaxcorp/traefik-client-real-ip
+import: github.com/kyaxcorp/traefikdisolver
 
 summary: 'Traefik Disolver - Get Real Client IP from Cloudflare/AWS Cloudfront Proxy/Tunnel and other data'
 
 testData:
-  traefik-client-real-ip:
+  traefikdisolver:
     provider: cloudfront
     disableDefault: true
     trustip:

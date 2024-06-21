@@ -30,8 +30,8 @@ If you do not define `trustip` and `disableDefault`, it doesn't seem to load the
 ```yaml
 experimental:
   plugins:
-    traefik-client-real-ip:
-      modulename: github.com/kyaxcorp/traefik-client-real-ip
+    traefikdisolver:
+      modulename: github.com/kyaxcorp/traefikdisolver
       version: v1.0.0
 ```
 
@@ -40,9 +40,9 @@ experimental:
 ```yaml
 http:
   middlewares:
-    client-real-ip:
+    traefikdisolver:
       plugin:
-        traefik-client-real-ip:
+        traefikdisolver:
           provider: cloudfront # cloudfront, cloudflare
           disableDefault: true
           trustip: # Trust IPS not required if disableDefault is false - we will allocate Cloud Flare IPs automatically
