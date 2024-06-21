@@ -1,10 +1,14 @@
-package traefik_client_real_ip
+package traefikdisolver
 
 import (
 	"context"
 	"errors"
 	"net"
 	"net/http"
+
+	"github.com/kyaxcorp/traefikdisolver/providers"
+	"github.com/kyaxcorp/traefikdisolver/providers/cloudflare"
+	"github.com/kyaxcorp/traefikdisolver/providers/cloudfront"
 )
 
 // New created a new plugin.
@@ -13,13 +17,15 @@ func New(ctx context.Context, next http.Handler, config *Config, name string) (h
 		return nil, errors.New("no provider has been defined")
 	}
 
-	
+	provider := providers.Provider(config.Provider)
+	if provider.Validate() != nil {
+		return nil, errors.New("failed to validate provider")
+	}
 
-
-	realIPUpdater := &RealIPUpdater{
+	realIPUpdater := &Disolver{
 		next:     next,
 		name:     name,
-		provider: config.Provider,
+		provider: provider,
 	}
 
 	if config.TrustIP != nil {
@@ -34,11 +40,17 @@ func New(ctx context.Context, next http.Handler, config *Config, name string) (h
 	}
 
 	if !config.DisableDefaultCFIPs {
-		switch config.Provider{
-			case 
+		var ips []string
+		switch provider {
+		case providers.Cloudflare:
+			ips = cloudflare.TrustedIPS()
+			realIPUpdater.clientIPHeaderName = cloudflare.ClientIPHeaderName
+		case providers.Cloudfront:
+			ips = cloudfront.TrustedIPS()
+			realIPUpdater.clientIPHeaderName = cloudfront.ClientIPHeaderName
 		}
 
-		for _, v := range ips.CFIPs() {
+		for _, v := range ips {
 			_, trustip, err := net.ParseCIDR(v)
 			if err != nil {
 				return nil, err

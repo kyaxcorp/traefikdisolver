@@ -8,3 +8,5 @@ func TrustedIPS() []string {
 		"::/0",
 	}
 }
+
+const ClientIPHeaderName = "Cloudfront-Viewer-Address"

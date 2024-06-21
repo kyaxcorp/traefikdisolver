@@ -19,14 +19,14 @@ var List = map[Provider]Provider{
 
 func (p Provider) String() string {
 	if v, ok := List[p]; ok {
-		return v
+		return string(v)
 	}
 	return ""
 }
 
 func (p *Provider) Validate() error {
 	if _, ok := List[*p]; !ok {
-		return errors.New(fmt.Sprint("invalid value", *t))
+		return errors.New(fmt.Sprint("invalid value", *p))
 	}
 	return nil
 }

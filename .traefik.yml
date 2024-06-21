@@ -1,10 +1,10 @@
-displayName: Traefik Client Real IP
+displayName: Traefik Disolver - Get Client Real IP
 type: middleware
 iconPath: .assets/icon.png
 
 import: github.com/kyaxcorp/traefik-client-real-ip
 
-summary: 'Get Real Client IP from Cloudflare/AWS Cloudfront Proxy/Tunnel'
+summary: 'Traefik Disolver - Get Real Client IP from Cloudflare/AWS Cloudfront Proxy/Tunnel and other data'
 
 testData:
   traefik-client-real-ip:

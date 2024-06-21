@@ -1,11 +1,11 @@
-package traefik_client_real_ip
+package traefikdisolver
 
 import (
 	"encoding/json"
 	"net/http"
 )
 
-func (r *RealIPUpdater) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+func (r *Disolver) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	trustResult := r.trust(req.RemoteAddr)
 	if trustResult.isFatal {
 		http.Error(rw, "Unknown source", http.StatusInternalServerError)

@@ -1,5 +1,4 @@
-package traefik_client_real_ip
-
+package traefikdisolver
 
 const (
 	xRealIP        = "X-Real-Ip"

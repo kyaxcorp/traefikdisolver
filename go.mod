@@ -1,3 +1,3 @@
-module github.com/kyaxcorp/traefik-client-real-ip
+module github.com/kyaxcorp/traefikdisolver
 
 go 1.19

@@ -1,18 +1,19 @@
-package traefik_client_real_ip
+package traefikdisolver
 
 import (
 	"net"
 	"net/http"
 
-	"github.com/kyaxcorp/traefik-client-real-ip/providers"
+	"github.com/kyaxcorp/traefikdisolver/providers"
 )
 
-// RealIPUpdater is a plugin that overwrite true IP.
-type RealIPUpdater struct {
-	next     http.Handler
-	name     string
-	provider providers.Provider
-	TrustIP  []*net.IPNet
+// Disolver is a plugin that overwrite true IP.
+type Disolver struct {
+	next               http.Handler
+	name               string
+	provider           providers.Provider
+	TrustIP            []*net.IPNet
+	clientIPHeaderName string
 }
 
 // CFVisitorHeader definition for the header value.
@@ -20,7 +21,7 @@ type CFVisitorHeader struct {
 	Scheme string `json:"scheme"`
 }
 
-func (r *RealIPUpdater) trust(s string) *TrustResult {
+func (r *Disolver) trust(s string) *TrustResult {
 	temp, _, err := net.SplitHostPort(s)
 	if err != nil {
 		return &TrustResult{

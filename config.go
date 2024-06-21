@@ -1,4 +1,4 @@
-package traefik_client_real_ip
+package traefikdisolver
 
 // Config the plugin configuration.
 type Config struct {
