@@ -26,7 +26,7 @@ experimental:
   plugins:
     traefikdisolver:
       modulename: github.com/kyaxcorp/traefikdisolver
-      version: v1.0.3
+      version: v1.0.4
 ```
 
 ### Plugin configuration
