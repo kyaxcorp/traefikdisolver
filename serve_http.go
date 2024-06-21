@@ -3,6 +3,8 @@ package traefikdisolver
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/kyaxcorp/traefikdisolver/providers"
 )
 
 func (r *Disolver) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
@@ -20,7 +22,7 @@ func (r *Disolver) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 	if trustResult.trusted {
-		if req.Header.Get(cfVisitor) != "" {
+		if r.provider == providers.Cloudflare && req.Header.Get(cfVisitor) != "" {
 			var cfVisitorValue CFVisitorHeader
 			if err := json.Unmarshal([]byte(req.Header.Get(cfVisitor)), &cfVisitorValue); err != nil {
 				req.Header.Set(xCfTrusted, "danger")
@@ -31,14 +33,27 @@ func (r *Disolver) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 			}
 			req.Header.Set(xForwardProto, cfVisitorValue.Scheme)
 		}
-		req.Header.Set(xCfTrusted, "yes")
-		req.Header.Set(xForwardFor, req.Header.Get(cfConnectingIP))
-		req.Header.Set(xRealIP, req.Header.Get(cfConnectingIP))
+
+		switch r.provider {
+		case providers.Cloudflare:
+			req.Header.Set(xCfTrusted, "yes")
+		case providers.Cloudfront:
+		default:
+			req.Header.Set(xForwardFor, req.Header.Get(r.clientIPHeaderName))
+			req.Header.Set(xRealIP, req.Header.Get(r.clientIPHeaderName))
+		}
+
 	} else {
-		req.Header.Set(xCfTrusted, "no")
-		req.Header.Set(xRealIP, trustResult.directIP)
-		req.Header.Del(cfVisitor)
-		req.Header.Del(cfConnectingIP)
+		switch r.provider {
+		case providers.Cloudflare:
+			req.Header.Set(xCfTrusted, "no")
+			req.Header.Del(cfVisitor)
+			req.Header.Del(cfConnectingIP)
+		case providers.Cloudfront:
+		default:
+			req.Header.Set(xRealIP, trustResult.directIP)
+		}
+
 	}
 	r.next.ServeHTTP(rw, req)
 }
