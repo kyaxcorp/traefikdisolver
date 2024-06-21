@@ -1,12 +1,15 @@
-displayName: Demo Plugin
+displayName: Traefik Client Real IP
 type: middleware
 iconPath: .assets/icon.png
 
-import: github.com/traefik/plugindemo
+import: github.com/kyaxcorp/traefik-client-real-ip
 
-summary: '[Demo] Add Request Header'
+summary: 'Get Real Client IP from Cloudflare/AWS Cloudfront Proxy/Tunnel'
 
 testData:
-  Headers:
-    X-Demo: test
-    X-URL: '{{URL}}'
+  traefik-client-real-ip:
+    provider: cloudfront
+    disableDefault: true
+    trustip:
+      - "0.0.0.0/0"
+      - "::/0"
