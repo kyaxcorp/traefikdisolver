@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/kyaxcorp/traefikdisolver/providers"
+	"github.com/kyaxcorp/traefikdisolver/providers/cloudflare"
 )
 
 func (r *Disolver) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
@@ -22,12 +23,12 @@ func (r *Disolver) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 	if trustResult.trusted {
-		if r.provider == providers.Cloudflare && req.Header.Get(cfVisitor) != "" {
+		if r.provider == providers.Cloudflare && req.Header.Get(cloudflare.CfVisitor) != "" {
 			var cfVisitorValue CFVisitorHeader
-			if err := json.Unmarshal([]byte(req.Header.Get(cfVisitor)), &cfVisitorValue); err != nil {
-				req.Header.Set(xCfTrusted, "danger")
-				req.Header.Del(cfVisitor)
-				req.Header.Del(cfConnectingIP)
+			if err := json.Unmarshal([]byte(req.Header.Get(cloudflare.CfVisitor)), &cfVisitorValue); err != nil {
+				req.Header.Set(cloudflare.XCfTrusted, "danger")
+				req.Header.Del(cloudflare.CfVisitor)
+				req.Header.Del(cloudflare.ClientIPHeaderName)
 				r.next.ServeHTTP(rw, req)
 				return
 			}
@@ -36,7 +37,7 @@ func (r *Disolver) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 
 		switch r.provider {
 		case providers.Cloudflare:
-			req.Header.Set(xCfTrusted, "yes")
+			req.Header.Set(cloudflare.XCfTrusted, "yes")
 		case providers.Cloudfront:
 		default:
 			req.Header.Set(xForwardFor, req.Header.Get(r.clientIPHeaderName))
@@ -46,9 +47,9 @@ func (r *Disolver) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	} else {
 		switch r.provider {
 		case providers.Cloudflare:
-			req.Header.Set(xCfTrusted, "no")
-			req.Header.Del(cfVisitor)
-			req.Header.Del(cfConnectingIP)
+			req.Header.Set(cloudflare.XCfTrusted, "no")
+			req.Header.Del(cloudflare.CfVisitor)
+			req.Header.Del(cloudflare.ClientIPHeaderName)
 		case providers.Cloudfront:
 		default:
 			req.Header.Set(xRealIP, trustResult.directIP)

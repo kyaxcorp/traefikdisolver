@@ -10,3 +10,5 @@ func TrustedIPS() []string {
 }
 
 const ClientIPHeaderName = "CF-Connecting-IP"
+const CfVisitor = "CF-Visitor"
+const XCfTrusted = "X-Is-Trusted"
