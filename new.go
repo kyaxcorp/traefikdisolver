@@ -39,15 +39,20 @@ func New(ctx context.Context, next http.Handler, config *Config, name string) (h
 		}
 	}
 
+	switch provider {
+	case providers.Cloudflare:
+		realIPUpdater.clientIPHeaderName = cloudflare.ClientIPHeaderName
+	case providers.Cloudfront:
+		realIPUpdater.clientIPHeaderName = cloudfront.ClientIPHeaderName
+	}
+
 	if !config.DisableDefaultCFIPs {
 		var ips []string
 		switch provider {
 		case providers.Cloudflare:
 			ips = cloudflare.TrustedIPS()
-			realIPUpdater.clientIPHeaderName = cloudflare.ClientIPHeaderName
 		case providers.Cloudfront:
 			ips = cloudfront.TrustedIPS()
-			realIPUpdater.clientIPHeaderName = cloudfront.ClientIPHeaderName
 		}
 
 		for _, v := range ips {
