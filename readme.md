@@ -34,7 +34,7 @@ experimental:
 ```yaml
 http:
   middlewares:
-    traefikdisolver:
+    traefikdisolver-cloudfront:
       plugin:
         traefikdisolver:
           provider: cloudfront # cloudfront, cloudflare
@@ -42,15 +42,30 @@ http:
           trustip: # Trust IPS not required if disableDefault is false - we will allocate Cloud Flare IPs automatically
             - "0.0.0.0/0"
             - "::/0"
+    traefikdisolver-cloudflare:
+      plugin:
+        traefikdisolver:
+          provider: cloudflare # cloudfront, cloudflare
+          disableDefault: true
+          trustip: # Trust IPS not required if disableDefault is false - we will allocate Cloud Flare IPs automatically
+            - "0.0.0.0/0"
+            - "::/0"
 
   routers:
-    my-router:
+    my-router-cloudfront:
       rule: Path(`/whoami`)
       service: service-whoami
       entryPoints:
         - http
       middlewares:
-        - client-real-ip
+        - traefikdisolver-cloudfront
+    my-router-cloudflare:
+      rule: Path(`/whoami`)
+      service: service-whoami
+      entryPoints:
+        - http
+      middlewares:
+        - traefikdisolver-cloudflare
 
   services:
     service-whoami:
