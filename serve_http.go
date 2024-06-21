@@ -2,6 +2,7 @@ package traefikdisolver
 
 import (
 	"encoding/json"
+	"net"
 	"net/http"
 
 	"github.com/kyaxcorp/traefikdisolver/providers"
@@ -45,8 +46,10 @@ func (r *Disolver) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		case providers.Cloudfront:
 		}
 
-		req.Header.Set(xForwardFor, req.Header.Get(r.clientIPHeaderName))
-		req.Header.Set(xRealIP, req.Header.Get(r.clientIPHeaderName))
+		clientIP, _, _ := net.SplitHostPort(req.Header.Get(r.clientIPHeaderName))
+
+		req.Header.Set(xForwardFor, clientIP)
+		req.Header.Set(xRealIP, clientIP)
 	} else {
 		switch r.provider {
 		case providers.Cloudflare:
