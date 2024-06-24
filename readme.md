@@ -65,15 +65,22 @@ http:
               - "0.0.0.0/0"
               - "::/0"
   routers:
+    my-router-auto:
+      rule: PathPrefix(`/`) && (Host(`cloudfront.example.com`) || Host(`cloudflare.example.com`))
+      service: service-whoami
+      entryPoints:
+        - http
+      middlewares:
+        - traefikdisolver-cloudfront
     my-router-cloudfront:
-      rule: Path(`/whoami`)
+      rule: PathPrefix(`/`) && Host(`cloudfront.example.com`)
       service: service-whoami
       entryPoints:
         - http
       middlewares:
         - traefikdisolver-cloudfront
     my-router-cloudflare:
-      rule: Path(`/whoami`)
+      rule: PathPrefix(`/`) && Host(`cloudflare.example.com`)
       service: service-whoami
       entryPoints:
         - http
