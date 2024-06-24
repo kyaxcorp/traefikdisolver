@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/kyaxcorp/traefikdisolver/providers"
-	"github.com/kyaxcorp/traefikdisolver/providers/auto"
 	"github.com/kyaxcorp/traefikdisolver/providers/cloudflare"
 	"github.com/kyaxcorp/traefikdisolver/providers/cloudfront"
 )
@@ -27,17 +26,7 @@ func New(ctx context.Context, next http.Handler, config *Config, name string) (h
 		next:     next,
 		name:     name,
 		provider: provider,
-	}
-
-	if config.TrustIP != nil {
-		for _, v := range config.TrustIP {
-			_, trustip, err := net.ParseCIDR(v)
-			if err != nil {
-				return nil, err
-			}
-
-			realIPUpdater.TrustIP = append(realIPUpdater.TrustIP, trustip)
-		}
+		TrustIP:  make(map[providers.Provider][]*net.IPNet),
 	}
 
 	switch provider {
@@ -47,7 +36,28 @@ func New(ctx context.Context, next http.Handler, config *Config, name string) (h
 		realIPUpdater.clientIPHeaderName = cloudfront.ClientIPHeaderName
 	}
 
-	if !config.DisableDefaultCFIPs {
+	if config.DisableDefaultCFIPs {
+		for prov, _ := range providers.ListExisting {
+			var trustIPs []string
+			var exist bool
+			if trustIPs, exist = config.TrustIP[prov.String()]; !exist {
+				// Let's get the default ones!
+				switch prov {
+				case providers.Cloudflare:
+					trustIPs = cloudflare.TrustedIPS()
+				case providers.Cloudfront:
+					trustIPs = cloudfront.TrustedIPS()
+				}
+			}
+			for _, v := range trustIPs {
+				_, trustip, err := net.ParseCIDR(v)
+				if err != nil {
+					return nil, err
+				}
+				realIPUpdater.TrustIP[prov] = append(realIPUpdater.TrustIP[prov], trustip)
+			}
+		}
+	} else {
 		var ips []string
 		switch provider {
 		case providers.Cloudflare:
@@ -55,16 +65,38 @@ func New(ctx context.Context, next http.Handler, config *Config, name string) (h
 		case providers.Cloudfront:
 			ips = cloudfront.TrustedIPS()
 		case providers.Auto:
-			ips = auto.TrustedIPS()
+			// ips = auto.TrustedIPS()
 		}
 
-		for _, v := range ips {
-			_, trustip, err := net.ParseCIDR(v)
-			if err != nil {
-				return nil, err
-			}
+		switch provider {
+		case providers.Cloudflare, providers.Cloudfront:
+			for _, v := range ips {
+				_, trustip, err := net.ParseCIDR(v)
+				if err != nil {
+					return nil, err
+				}
 
-			realIPUpdater.TrustIP = append(realIPUpdater.TrustIP, trustip)
+				realIPUpdater.TrustIP[provider] = append(realIPUpdater.TrustIP[provider], trustip)
+			}
+		case providers.Auto:
+			ips = cloudflare.TrustedIPS()
+			for _, v := range ips {
+				_, trustip, err := net.ParseCIDR(v)
+				if err != nil {
+					return nil, err
+				}
+
+				realIPUpdater.TrustIP[providers.Cloudflare] = append(realIPUpdater.TrustIP[providers.Cloudflare], trustip)
+			}
+			ips = cloudfront.TrustedIPS()
+			for _, v := range ips {
+				_, trustip, err := net.ParseCIDR(v)
+				if err != nil {
+					return nil, err
+				}
+
+				realIPUpdater.TrustIP[providers.Cloudfront] = append(realIPUpdater.TrustIP[providers.Cloudfront], trustip)
+			}
 		}
 	}
 

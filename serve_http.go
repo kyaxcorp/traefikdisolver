@@ -11,7 +11,7 @@ import (
 )
 
 func (r *Disolver) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	trustResult := r.trust(req.RemoteAddr)
+	trustResult := r.trust(req.RemoteAddr,req)
 	if trustResult.isFatal {
 		http.Error(rw, "Unknown source", http.StatusInternalServerError)
 		return
@@ -56,6 +56,8 @@ func (r *Disolver) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 			} else if req.Header.Get(cloudfront.ClientIPHeaderName) != "" {
 				clientIPHeaderName = cloudfront.ClientIPHeaderName
 			}
+
+			// TODO: check if trusted...? or the ones that have been added by the user are combined
 		default:
 			clientIPHeaderName = r.clientIPHeaderName
 		}

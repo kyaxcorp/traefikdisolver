@@ -9,6 +9,7 @@ type Provider string
 
 const (
 	// Auto Detect - it's only for testing purposes... when you have a Router which handles incoming connections from different Providers
+	Unknown    Provider = "unknown"
 	Auto       Provider = "auto"
 	Cloudfront Provider = "cloudfront"
 	Cloudflare Provider = "cloudflare"
@@ -16,6 +17,11 @@ const (
 
 var List = map[Provider]Provider{
 	Auto:       Auto,
+	Cloudfront: Cloudfront,
+	Cloudflare: Cloudflare,
+}
+
+var ListExisting = map[Provider]Provider{
 	Cloudfront: Cloudfront,
 	Cloudflare: Cloudflare,
 }

@@ -4,16 +4,18 @@ import "github.com/kyaxcorp/traefikdisolver/providers"
 
 // Config the plugin configuration.
 type Config struct {
-	Provider            string   `json:"provider,omitempty"`
-	TrustIP             []string `json:"trustip,omitempty"`
-	DisableDefaultCFIPs bool     `json:"disableDefault,omitempty"`
+	Provider string `json:"provider,omitempty"`
+	// TrustIP             []string `json:"trustip,omitempty"`
+	TrustIP             map[string][]string `json:"trustip,omitempty"`
+	DisableDefaultCFIPs bool                `json:"disableDefault,omitempty"`
 }
 
 // CreateConfig creates the default plugin configuration.
 func CreateConfig() *Config {
 	return &Config{
-		Provider:            providers.Auto.String(), // TODO: if no provider has been set...
-		TrustIP:             []string{},
+		Provider: providers.Auto.String(), // TODO: if no provider has been set...
+		// TrustIP:             []string{},
+		TrustIP:             make(map[string][]string),
 		DisableDefaultCFIPs: false,
 	}
 }

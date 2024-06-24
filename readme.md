@@ -12,11 +12,11 @@ Processed Headers:
 
 Supported configurations per body
 
-| Setting        | Allowed values | Required | Description                                         |
-| :------------- | :------------- | :------- | :-------------------------------------------------- |
-| provider       | string         | yes      | cloudfront, cloudflare                              |
-| trustip        | []string       | No       | IP or IP range to trust                             |
-| disableDefault | bool           | Yes      | Disable the built in list of CloudFlare IPs/Servers |
+| Setting             | Allowed values | Required | Description                                         |
+| :------------------ | :------------- | :------- | :-------------------------------------------------- |
+| provider            | string         | yes      | auto, cloudfront, cloudflare                        |
+| trustip->{provider} | []string       | No       | IP or IP range to trust                             |
+| disableDefault      | bool           | Yes      | Disable the built in list of CloudFlare IPs/Servers |
 
 
 ### Enable the plugin
@@ -26,7 +26,7 @@ experimental:
   plugins:
     traefikdisolver:
       modulename: github.com/kyaxcorp/traefikdisolver
-      version: v1.0.6
+      version: v1.0.7
 ```
 
 ### Plugin configuration
@@ -34,23 +34,36 @@ experimental:
 ```yaml
 http:
   middlewares:
+    traefikdisolver-auto:
+      plugin:
+        traefikdisolver:
+          provider: auto
+          disableDefault: true
+          trustip: # Trust IPS not required if disableDefault is false - we will allocate Cloud Flare IPs automatically
+            cloudflare:
+              - "0.0.0.0/0"
+              - "::/0"
+            cloudfront:
+              - "0.0.0.0/0"
+              - "::/0"
     traefikdisolver-cloudfront:
       plugin:
         traefikdisolver:
-          provider: cloudfront # cloudfront, cloudflare
+          provider: cloudfront
           disableDefault: true
           trustip: # Trust IPS not required if disableDefault is false - we will allocate Cloud Flare IPs automatically
-            - "0.0.0.0/0"
-            - "::/0"
+            cloudfront:
+              - "0.0.0.0/0"
+              - "::/0"
     traefikdisolver-cloudflare:
       plugin:
         traefikdisolver:
-          provider: cloudflare # cloudfront, cloudflare
+          provider: cloudflare
           disableDefault: true
           trustip: # Trust IPS not required if disableDefault is false - we will allocate Cloud Flare IPs automatically
-            - "0.0.0.0/0"
-            - "::/0"
-
+            cloudflare:
+              - "0.0.0.0/0"
+              - "::/0"
   routers:
     my-router-cloudfront:
       rule: Path(`/whoami`)
