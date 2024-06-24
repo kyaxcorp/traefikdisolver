@@ -11,10 +11,9 @@ import (
 
 // Disolver is a plugin that overwrite true IP.
 type Disolver struct {
-	next     http.Handler
-	name     string
-	provider providers.Provider
-	//TrustIP            []*net.IPNet
+	next               http.Handler
+	name               string
+	provider           providers.Provider
 	TrustIP            map[providers.Provider][]*net.IPNet
 	clientIPHeaderName string
 }
