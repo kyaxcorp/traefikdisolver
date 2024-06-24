@@ -8,11 +8,14 @@ import (
 type Provider string
 
 const (
+	// Auto Detect - it's only for testing purposes... when you have a Router which handles incoming connections from different Providers
+	Auto       Provider = "auto"
 	Cloudfront Provider = "cloudfront"
 	Cloudflare Provider = "cloudflare"
 )
 
 var List = map[Provider]Provider{
+	Auto:       Auto,
 	Cloudfront: Cloudfront,
 	Cloudflare: Cloudflare,
 }

@@ -7,6 +7,7 @@ import (
 
 	"github.com/kyaxcorp/traefikdisolver/providers"
 	"github.com/kyaxcorp/traefikdisolver/providers/cloudflare"
+	"github.com/kyaxcorp/traefikdisolver/providers/cloudfront"
 )
 
 func (r *Disolver) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
@@ -46,8 +47,22 @@ func (r *Disolver) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		case providers.Cloudfront:
 		}
 
-		clientIP, _, _ := net.SplitHostPort(req.Header.Get(r.clientIPHeaderName))
+		var clientIPHeaderName string
+		var clientIP string
+		switch r.provider {
+		case providers.Auto:
+			if req.Header.Get(cloudflare.ClientIPHeaderName) != "" {
+				clientIPHeaderName = cloudflare.ClientIPHeaderName
+			} else if req.Header.Get(cloudfront.ClientIPHeaderName) != "" {
+				clientIPHeaderName = cloudfront.ClientIPHeaderName
+			}
+		default:
+			clientIPHeaderName = r.clientIPHeaderName
+		}
 
+		if clientIPHeaderName != "" {
+			clientIP, _, _ = net.SplitHostPort(req.Header.Get(clientIPHeaderName))
+		}
 		req.Header.Set(xForwardFor, clientIP)
 		req.Header.Set(xRealIP, clientIP)
 	} else {

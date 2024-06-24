@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/kyaxcorp/traefikdisolver/providers"
+	"github.com/kyaxcorp/traefikdisolver/providers/auto"
 	"github.com/kyaxcorp/traefikdisolver/providers/cloudflare"
 	"github.com/kyaxcorp/traefikdisolver/providers/cloudfront"
 )
@@ -53,6 +54,8 @@ func New(ctx context.Context, next http.Handler, config *Config, name string) (h
 			ips = cloudflare.TrustedIPS()
 		case providers.Cloudfront:
 			ips = cloudfront.TrustedIPS()
+		case providers.Auto:
+			ips = auto.TrustedIPS()
 		}
 
 		for _, v := range ips {
