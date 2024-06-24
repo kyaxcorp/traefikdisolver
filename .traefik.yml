@@ -10,5 +10,9 @@ testData:
   provider: cloudfront
   disableDefault: true
   trustip:
-    - "0.0.0.0/0"
-    - "::/0"
+    cloudfront:
+      - "0.0.0.0/0"
+      - "::/0"
+    cloudflare:
+      - "0.0.0.0/0"
+      - "::/0"
